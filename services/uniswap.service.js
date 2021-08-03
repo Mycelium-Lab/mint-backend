@@ -47,6 +47,6 @@ const client = new ApolloClient({
     link,
     cache: new InMemoryCache()
   });
-export default async () => {
-    return client.query({ query: mintsQuery , variables: mintsParameters});
+export default {
+  makeQuery: client.query({ query: mintsQuery , variables: mintsParameters});
 }
