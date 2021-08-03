@@ -35,8 +35,20 @@ const findOne = async (dbName, collectionName,request, options = {}) => {
         await mongoClient.close();
     }
 }
+const deleteOne = async (dbName, collectionName,request, options = {}) => {
+    try{
+        await mongoClient.connect();
+        const db = mongoClient.db(dbName);
+        const collection = db.collection(collectionName);
+        const deleteOneRes = await collection.deleteOne(request, options);
+        return deleteOneRes;
+    }finally {
+        await mongoClient.close();
+    }
+}
 export default {
     storeToDB: storeToDB,
     find: find,
-    findOne: findOne
+    findOne: findOne,
+    deleteOne: deleteOne
 }

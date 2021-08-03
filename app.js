@@ -13,7 +13,7 @@ bot.command('subscribe', async (ctx) => {
     try{
         let subscriber = await db.findOne('telegram-bot-subscribers', 'subscribers', {username: ctx.message.from.username});
         if(subscriber){
-            ctx.reply('Already sunbscribed!');
+            ctx.reply('Already subscribed!');
         }else{
             await db.storeToDB('telegram-bot-subscribers', 'subscribers', [{username: ctx.message.from.username, id: ctx.message.from.id, first_name: ctx.message.from.first_name}]);
             ctx.reply('Subscribed!');
@@ -43,9 +43,26 @@ bot.command('address', async (ctx) => {
         console.log(err);
     }
 })
-// TODO: unsubscribe
-
-bot.launch()
+bot.command('unsubscribe', async (ctx) => {
+    try{
+        let subscriber = await db.findOne('telegram-bot-subscribers', 'subscribers', {username: ctx.message.from.username});
+        if(subscriber){
+            await db.deleteOne('telegram-bot-subscribers', 'subscribers', {username: ctx.message.from.username} )
+            ctx.reply('Unsubscribed!');
+        }else{
+            ctx.reply('You aren\'t subscribed!');
+        }
+    }catch(err){
+        ctx.reply('Error when dealing with subscribtion!');
+        console.log(err);
+    }
+})
+bot.launch({
+    webhook: {
+      domain: 'https://rare-vampirebat-98.loca.lt',
+      port: 3000
+    }
+  })
 process.once('SIGINT', () => bot.stop('SIGINT'))
 process.once('SIGTERM', () => bot.stop('SIGTERM'))
 
