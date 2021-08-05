@@ -44,9 +44,21 @@ const deleteSubscriber = async (request, options = {}) => {
         await mongoClient.close();
     }
 }
+const updateSubscriber = async (filter, newType) => {
+    try{
+        await mongoClient.connect();
+        const db = mongoClient.db(botSubscribersConfig.databaseName);
+        const collection = db.collection(botSubscribersConfig.collectionName);
+        const options = { upsert: true };
+        await collection.updateOne(filter, {$set: newType}, options);
+    }finally {
+        await mongoClient.close();
+    }
+}
 export default {
     getSubscribers: getSubscribers,
     newSubscriber: newSubscriber,
     getSubscriber: getSubscriber,
-    deleteSubscriber: deleteSubscriber
+    deleteSubscriber: deleteSubscriber,
+    updateSubscriber: updateSubscriber
 }
