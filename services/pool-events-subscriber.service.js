@@ -5,9 +5,7 @@ import botSubscribers from '../db/bot-subscribers.js';
 // Функция посылает всем подписчикам бота сообщение о новом эвенте. 
 const eventHandler = async (event, botInstance) => {
     try {
-        console.log(event.returnValues.owner)
         let liquidityProvider = await luquidityProviders.getLiquidityProvider({address: event.returnValues.owner.toLowerCase()}, {projection: { totalAmount: 1}});
-        console.log(liquidityProvider)
         let subscribers;
         if (liquidityProvider.totalAmount >= 1000000){
             subscribers = await botSubscribers.getSubscribers({});
@@ -16,7 +14,6 @@ const eventHandler = async (event, botInstance) => {
         } else if (liquidityProvider.totalAmount >= 100000){
             subscribers = await botSubscribers.getSubscribers({subscription_type: "100.000+ $"});
         }
-        console.log(subscribers)
         if (subscribers.length > 0) {
             await Promise.all(subscribers.map((subscriber) => {
                 return botInstance.telegram.sendMessage(subscriber.id, `${event.event} event. Owner: ${event.returnValues.owner}, amount: ${event.returnValues.amount}`);
@@ -29,7 +26,7 @@ const eventHandler = async (event, botInstance) => {
 const subscribeToPoolEvents = async (botInstance) => {
     const contractJson = fs.readFileSync('./abi/IUniswapV3PoolEvents.json');
     const poolEventsAbi = JSON.parse(contractJson);
-    const web3 = new Web3(new Web3.providers.WebsocketProvider('wss://rinkeby.infura.io/ws/v3/' + process.env.INFURA_API_KEY));
+    const web3 = new Web3(new Web3.providers.WebsocketProvider('wss://mainnet.infura.io/ws/v3/' + process.env.INFURA_API_KEY));
     
 
     // Сделать запрос к БД и сохранить в массив адреса пулов без дубликатов 
