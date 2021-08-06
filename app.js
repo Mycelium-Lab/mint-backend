@@ -1,9 +1,11 @@
+import './env.js'
 import {Telegraf} from 'telegraf'
 import botController from './controllers/bot.controller.js';
 import poolEventsSubscriber from './services/pool-events-subscriber.service.js';
 import webhookConfig from './config/webhook.config.js';
 import menuMiddleware from './middlewares/menu.js';
 import botSubscribers from './db/bot-subscribers.js';
+
 const bot = new Telegraf(process.env.BOT_TOKEN)
 bot.use(menuMiddleware.middleware())
 // Стартовое сообщение
@@ -16,10 +18,18 @@ bot.command('menu', async (ctx) => {
       ctx.session = {subscribtionType: subscriber.subscription_type}
     }
     await menuMiddleware.replyToContext(ctx)
-  })
-  bot.launch({
-    webhook: webhookConfig
-  })
+})
+const tlsOptions = {
+  key: fs.readFileSync('/etc/ssl/private/private-nodejs.key'),
+  cert: fs.readFileSync('/etc/ssl/certs/public-nodejs.pem'), 
+  ca: [
+    fs.readFileSync('/etc/ssl/certs/public-nodejs.pem')
+  ]
+};  
+bot.telegram.setWebhook(`https://${process.env.WEBHOOK_URI}:8443/bot`, {
+    source: `public-nodejs.pem`
+});
+bot.startWebhook(`/bot`, tlsOptions, 8443);
 process.once('SIGINT', () => bot.stop('SIGINT'))
 process.once('SIGTERM', () => bot.stop('SIGTERM'))
 
