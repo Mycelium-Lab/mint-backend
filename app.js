@@ -13,11 +13,13 @@ bot.start(botController.onStart)
 // При получении /address ищет в БД документ по адресу. Если находит, то отправляет количество ликвидности.
 bot.command('address', botController.fetchLiquidityByAddress)
 bot.command('menu', async (ctx) => {
-    let subscriber = await botSubscribers.getSubscriber({ username: ctx.message.from.username }, { projection: { subscription_type: 1} });
-    if(subscriber){
-      ctx.session = {subscribtionType: subscriber.subscription_type}
+  let subscriber = await botSubscribers.getSubscriber({ username: ctx.message.from.username }, { projection: { subscriptions: 1} });
+  if(subscriber){
+    ctx.session = {
+      subscriptions : subscriber.subscriptions
     }
-    await menuMiddleware.replyToContext(ctx)
+  }
+  await menuMiddleware.replyToContext(ctx)
 })
 const tlsOptions = {
   key: fs.readFileSync('/etc/ssl/private/private-nodejs.key'),
@@ -29,4 +31,4 @@ bot.startWebhook(`/bot`, tlsOptions, 8443);
 process.once('SIGINT', () => bot.stop('SIGINT'))
 process.once('SIGTERM', () => bot.stop('SIGTERM'))
 
-await poolEventsSubscriber.subscribeToPoolEvents(bot);
+//await poolEventsSubscriber.subscribeToPoolEvents(bot);
